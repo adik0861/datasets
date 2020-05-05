@@ -7,10 +7,12 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
+import requests
 
 
 class Data:
     def __init__(self):
+        self.download_files()
         self.train, self.test = pd.read_csv('train.csv'), pd.read_csv('test.csv')
         self.stop_words = self.get_stopwords()
         self.vectorizer = TfidfVectorizer(min_df=5,
@@ -24,6 +26,14 @@ class Data:
     def vectorize(self, text):
         text = [text] if isinstance(text, str) else text
         return self.vectorizer.transform(text)
+
+    @staticmethod
+    def download_files():
+        base_url = 'https://github.com/adik0861/sentiment_analysis/blob/master/'
+        for _file in ['train.csv', 'test.csv']:
+            if not Path(_file).exists():
+                with open('train.csv', 'wb') as f:
+                    f.write(requests.get(f'{base_url}{_file}').content)
 
     @staticmethod
     def get_stopwords():
